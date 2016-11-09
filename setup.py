@@ -60,6 +60,7 @@ build_exe_options = {
                       'qtwebengine_resources.pak', # ditto
                       'QtWebEngineProcess.exe', # ditto
                       ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
+                      ('lib/faf-ice-adapter.exe', 'lib/faf-ice-adapter.exe'),
                       ('lib/qt.conf', 'qt.conf'),
                       ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
     'include_msvcr': True,
