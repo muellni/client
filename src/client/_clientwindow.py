@@ -42,7 +42,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from client import ClientState, LOBBY_HOST, \
     LOBBY_PORT, LOCAL_REPLAY_PORT
-
+from connectivity.ConnectivityDialog import ConnectivityDialog
 import logging
 
 logger = logging.getLogger(__name__)
@@ -302,6 +302,8 @@ class ClientWindow(FormClass, BaseClass):
 
         # for moderator
         self.modMenu = None
+
+        self.connectivity_dialog = None
 
         #self.nFrame = NewsFrame()
         #self.whatsNewLayout.addWidget(self.nFrame)
@@ -680,6 +682,11 @@ class ClientWindow(FormClass, BaseClass):
             progress.setLabelText("Removing UPnP port mappings")
             fa.upnp.removePortMappings()
 
+        # Close connectivity dialog
+        if self.connectivity_dialog:
+            self.connectivity_dialog.close()
+            self.connectivity_dialog = None
+
         # Close game session (and stop faf-ice-adapter.exe)
         if self.game_session:
             self.game_session.close()
@@ -713,7 +720,10 @@ class ClientWindow(FormClass, BaseClass):
     def closeEvent(self, event):
         logger.info("Close Event for Application Main Window")
         self.saveWindow()
-        self.game_session.close()
+        if getattr(self, "game_session", False):
+            self.game_session.close()
+        if getattr(self, "connectivity_dialog", False):
+            self.connectivity_dialog.close()
 
         if fa.instance.running():
             if QtWidgets.QMessageBox.question(self, "Are you sure?", "Seems like you still have Forged Alliance "
@@ -839,8 +849,8 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def connectivityDialog(self):
-        dialog = connectivity.ConnectivityDialog(self.connectivity)
-        dialog.exec_()
+        self.connectivity_dialog = ConnectivityDialog(self.game_session.ice_adapter_client)
+        self.connectivity_dialog.show()
 
     @QtCore.pyqtSlot()
     def linkAbout(self):
