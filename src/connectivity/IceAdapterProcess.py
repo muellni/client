@@ -29,7 +29,7 @@ class IceAdapterProcess(object):
                                        ["--id", str(player_id),
                                         "--rpc-port", str(self._rpc_server_port),
                                         "--gpgnet-port", "0",
-                                        "--log-level" , "info",
+                                        "--log-level" , "warn",
                                         "--log-directory", Settings.get('client/logs/path', type=str)])
 
 
