@@ -15,6 +15,9 @@ def developer():
 
 from config import VERSION as VERSION_STRING
 
+import logging
+logger = logging.getLogger(__name__)
+
 LOGFILE_MAX_SIZE = 256 * 1024  #256kb should be enough for anyone
 
 UNITS_PREVIEW_ROOT = "{}/faf/unitsDB/icons/big/".format(Settings.get('content/host'))
@@ -91,11 +94,20 @@ DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
 PERSONAL_DIR = str(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
+logger.info('PERSONAL_DIR initial: ' + PERSONAL_DIR)
+try:
+    PERSONAL_DIR.decode('ascii')
+except:
+    logger.warn('PERSONAL_DIR not ascii')
+
 try:
     getpass.getuser().decode('ascii')  # Try to see if the user has a wacky username
 except:
+    logger.warn('getuser() not ascii, setting to APPDATA')
     PERSONAL_DIR = os.path.join(APPDATA_DIR, "user")
-    
+
+logger.info('PERSONAL_DIR final: ' + PERSONAL_DIR)
+
 #Ensure Application data directories exist
 if not os.path.isdir(APPDATA_DIR):
     os.makedirs(APPDATA_DIR)
@@ -140,9 +152,6 @@ try:
             os.remove(LOG_FILE_FAF)
 except:
     pass
-
-import logging
-logger = logging.getLogger(__name__)
 
 def clearDirectory(directory, confirm=True):
     if (os.path.isdir(directory)):
