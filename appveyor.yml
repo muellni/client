@@ -11,19 +11,27 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH% %QTIMPL%"
 
 install:
+  # install Lua and build the lupa python module
+  - choco install -y lua
+  - ps: "iwr https://raw.githubusercontent.com/mattn/gntp-send/master/include/msinttypes/stdint.h -OutFile \"C:\\Program Files (x86)\\Lua\\5.1\\include\\stdint.h\""
+  - "%PYTHON%\\Scripts\\pip install --global-option=build_ext --global-option=\"-IC:\\Program Files (x86)\\Lua\\5.1\\include\" --global-option=\"-llua51\" --global-option=\"-LC:\\Program Files (x86)\\Lua\\5.1\\lib\" lupa"
+  - "copy \"C:\\Program Files (x86)\\Lua\\5.1\\lib\\*.dll\" .\\lib\\"
+  # use conda for installing pyqt
   - "%PYTHON%\\Scripts\\conda install --quiet -y pyqt=4.11.4 pywin32"
-  - "%PYTHON%\\Scripts\\pip install http://content.faforever.com/wheel/lupa-1.1-cp27-none-win32.whl"
+  - "xcopy %PYTHON%\\Library\\plugins\\imageformats .\\imageformats /I"
+  # install dependencies using pip
+  - "%PYTHON%\\Scripts\\pip install lupa "
   - "%PYTHON%\\Scripts\\pip install wheel"
   - "%PYTHON%\\Scripts\\pip install pytest"
   - "%PYTHON%\\Scripts\\pip install cffi"
   - "%PYTHON%\\Scripts\\pip install cx_Freeze"
+  - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
   - ps: "$env:APPVEYOR_BUILD_VERSION = (& C:\\Miniconda\\python .\\src\\config\\version.py) + \"+\" + $env:APPVEYOR_BUILD_NUMBER"
   - ps: "get-childitem env:"
   - ps: "$env:PYTEST_QT_API=\"pyqt4v2\""
   - ps: "$env:FAF_FORCE_PRODUCTION=true"
-  - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
+  # download faf-uid.exe to ./lib/
   - ps: (Invoke-WebRequest -Uri https://api.github.com/repos/FAForever/uid/releases/latest | ConvertFrom-Json).assets | where {$_.name -eq "faf-uid.exe"} | %{ iwr $_.browser_download_url -OutFile ".\\lib\\faf-uid.exe" }
-  - "xcopy %PYTHON%\\Library\\plugins\\imageformats .\\imageformats /I"
 
 test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
