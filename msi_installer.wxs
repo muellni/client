@@ -68,18 +68,11 @@
 
 		<Property Id="WIXUI_INSTALLDIR" Value="DIR_FAF" />
 		
-		<UI>
+		<UI Id="WixUI_SkipLicenseAgreement">
+			<WixVariable Id="WixUIDialogBmp" Value="msi_installer_icon.bmp" />
 			<UIRef Id="WixUI_InstallDir" />
-			<Publish Dialog="WelcomeDlg"
-				Control="Next"
-				Event="NewDialog"
-				Value="InstallDirDlg"
-				Order="2">1</Publish>
-		  <Publish Dialog="InstallDirDlg"
-				Control="Back"
-				Event="NewDialog"
-				Value="WelcomeDlg"
-				Order="2">1</Publish>
-		</UI>
+			<Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
+			<Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">NOT Installed</Publish>
+		</UI> 
 	</Product>
 </Wix>
