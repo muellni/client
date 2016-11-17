@@ -1,0 +1,85 @@
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<?define Product = "Forged Alliance Forever" ?>
+
+	<!-- Use * to generate product ID on every build -->
+	<Product Id="*"
+			 Name="$(var.Product)"
+			 Language="1033"
+			 Version="0.11.60.577"
+			 Manufacturer="FAF Community"
+			 UpgradeCode="ADE2A55B-834C-4D8D-A071-7A91A3A266B7">
+
+		<Package Compressed="yes"
+				 InstallScope="perMachine"
+				 Manufacturer="FAF Community"
+				 Description="$(var.Product)"
+				 Comments="Supreme Commander : Forged Alliance - community client" />
+
+		<MediaTemplate EmbedCab="yes" />
+
+		<!--Directory structure-->
+		<Directory Id="TARGETDIR"
+				   Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="DIR_FAF"
+						   Name="Forged Alliance Forever" />
+				<Directory Id="ProgramMenuFolder">
+					<Directory Id="DIR_FAF_Shortcuts"
+							   Name="Forged Alliance Forever" />
+				</Directory>
+			</Directory>
+		</Directory>
+
+		<!--Start Menu Shortcuts-->
+		<DirectoryRef Id="DIR_FAF_Shortcuts">
+			<Component Id="CMP_Shortcuts"
+					   Guid="1AF06B42-CD42-4AED-959F-36DB5E512046">
+
+				<Shortcut Id="StartShortcut"
+						  Name="$(var.Product)"
+						  Description="Start $(var.Product)"
+						  Target="[DIR_FAF]FAForever.exe" />
+
+				<Shortcut Id="UninstallShortcut"
+						  Name="Uninstall $(var.Product)"
+						  Description="Uninstalls $(var.Product)"
+						  Target="[System64Folder]msiexec.exe"
+						  Arguments="/x [ProductCode]" />
+
+				<RemoveFolder Id="RemoveDIR_Shortcuts"
+							  On="uninstall" />
+							  
+			</Component>
+		</DirectoryRef>
+
+		<!--Features-->
+		<Feature Id="FileToInstallFeature"
+				 Title="$(var.Product)"
+				 Level="1">
+			<ComponentGroupRef Id="CMP_FAF" />
+		</Feature>
+
+		<Feature Id="ShortcutsFeature"
+			 Title="Shortcuts"
+			 Level="1">
+			<ComponentRef Id="CMP_Shortcuts" />
+		</Feature>
+
+		<Property Id="WIXUI_INSTALLDIR" Value="DIR_FAF" />
+		
+		<UI>
+			<UIRef Id="WixUI_InstallDir" />
+			<Publish Dialog="WelcomeDlg"
+				Control="Next"
+				Event="NewDialog"
+				Value="InstallDirDlg"
+				Order="2">1</Publish>
+		  <Publish Dialog="InstallDirDlg"
+				Control="Back"
+				Event="NewDialog"
+				Value="WelcomeDlg"
+				Order="2">1</Publish>
+		</UI>
+	</Product>
+</Wix>

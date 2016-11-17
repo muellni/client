@@ -37,8 +37,10 @@ test_script:
   - "%PYTHON%\\python runtests.py -vv --full-trace"
 
 after_test:
-  - "%PYTHON%\\python setup.py bdist_msi"
-
+  - "%PYTHON%\\python setup.py bdist"
+  "C:\Program Files (x86)\WiX Toolset v3.10\bin\heat.exe" dir .\\build\\exe.win32-2.7 -o msi_files.wxs -scom -frag -srd -sreg -gg -cg CMP_FAF -dr DIR_FA
+  "C:\Program Files (x86)\WiX Toolset v3.10\bin\candle.exe" msi_installer.wxs
+  "C:\Program Files (x86)\WiX Toolset v3.10\bin\light.exe" -ext WixUIExtension -cultures:en-us msi_files.wixobj msi_installer.wixobj  -o FAF.msi -b "C:\faf\client\build\exe.win32-2.7"
 artifacts:
   - path: '**\*.msi'
 
