@@ -93,10 +93,10 @@ if not os.path.exists(PREFSFILENAME):
 DOWNLOADED_RES_PIX = {}
 DOWNLOADING_RES_PIX = {}
 
-PERSONAL_DIR = str(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
+PERSONAL_DIR = unicode(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
 logger.info('PERSONAL_DIR initial: ' + PERSONAL_DIR)
 try:
-    PERSONAL_DIR.decode('ascii')
+    PERSONAL_DIR = PERSONAL_DIR.decode('ascii')
 except:
     logger.warn('PERSONAL_DIR not ascii')
 
