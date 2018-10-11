@@ -52,7 +52,7 @@ class JsonRpcTcpClient(QObject):
                     "result": result,
                     "jsonrpc": "2.0"
                 }
-                self.socket.write(json.dumps(responseObject))
+                self.socket.write(json.dumps(responseObject).encode('utf8') + b'\n')
         except AttributeError:
             if "id" in request:
                 responseObject = {
@@ -60,7 +60,7 @@ class JsonRpcTcpClient(QObject):
                     "error": "no such method",
                     "jsonrpc": "2.0"
                 }
-                self.socket.write(json.dumps(responseObject))
+                self.socket.write(json.dumps(responseObject).encode('utf8') + b'\n')
 
     def parseResponse(self, response):
         if "error" in response:
@@ -144,4 +144,4 @@ class JsonRpcTcpClient(QObject):
                 self.callbacks_error[self.nextid] = callback_error
             self.nextid += 1
         self._logger.debug("sending JSONRPC object {}".format(rpcObject))
-        self.socket.write(json.dumps(rpcObject).encode("utf-8") + b'\n')
+        self.socket.write(json.dumps(rpcObject).encode('utf8') + b'\n')
