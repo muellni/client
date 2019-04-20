@@ -33,7 +33,7 @@ class GamesWidget(FormClass, BaseClass):
         self.setupUi(self)
 
         self._me = me
-        self.client = client
+        self.client = client  # type: ClientWindow
         self.mods = {}
         self._game_model = CustomGameFilterModel(self._me, game_model)
         self._game_launcher = game_launcher
@@ -67,8 +67,8 @@ class GamesWidget(FormClass, BaseClass):
 
         self.client.lobby_info.modInfo.connect(self.processModInfo)
 
-        self.client.gameEnter.connect(self.stopSearchRanked)
-        self.client.viewingReplay.connect(self.stopSearchRanked)
+        self.client.game_enter.connect(self.stopSearchRanked)
+        self.client.viewing_replay.connect(self.stopSearchRanked)
 
         self.sortGamesComboBox.addItems(['By Players', 'By avg. Player Rating', 'By Map', 'By Host', 'By Age'])
         self.sortGamesComboBox.currentIndexChanged.connect(self.sortGamesComboChanged)

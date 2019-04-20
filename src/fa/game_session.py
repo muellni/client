@@ -44,7 +44,10 @@ class GameSession(QObject):
         self.game_password = None
         self.player_id = player_id
         self.player_login = player_login
-        client.instance.lobby_dispatch.subscribe_to('game', self.handle_message)
+
+        # Subscribe to messages targeted at 'game' from the server
+        client.lobby_dispatch.subscribe_to('game', self.handle_message)
+
 
         self._joins, self._connects = [], []
 

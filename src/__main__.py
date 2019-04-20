@@ -16,6 +16,7 @@ Created on Dec 1, 2011
 
 import os
 import sys
+import bugsnag
 
 # Some linux distros (like Gentoo) make package scripts available
 # by copying and modifying them. This breaks path to our modules.
@@ -69,7 +70,13 @@ def excepthook(exc_type, exc_value, traceback_object):
         raise exc_value
 
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback_object))
-    logger.error("Runtime Info:\n%s", util.runtime_info())
+    runtime_info = util.runtime_info()
+    logger.error("Runtime Info:\n%s", runtime_info)
+    try:
+        bugsnag.notify(exc_value, meta_data={"runtime_info": runtime_info})
+    except Exception:
+        logger.error("Couldn't send error to bugnag")
+
     dialog = util.CrashDialog((exc_type, exc_value, traceback_object))
     answer = dialog.exec_()
 
@@ -79,7 +86,7 @@ def excepthook(exc_type, exc_value, traceback_object):
     sys.excepthook = excepthook
 
 
-def AdminUserErrorDialog():
+def admin_user_error_dialog():
     from config import Settings
     ignore_admin = Settings.get("client/ignore_admin", False, bool)
     if not ignore_admin:
@@ -93,7 +100,7 @@ def AdminUserErrorDialog():
             Settings.set("client/ignore_admin", True)
 
 
-def runFAF():
+def run_faf():
     # Load theme from settings (one of the first things to be done)
     util.THEME.loadTheme()
 
@@ -103,7 +110,7 @@ def runFAF():
     faf_client = client.instance
     faf_client.setup()
     faf_client.show()
-    faf_client.doConnect()
+    faf_client.do_connect()
 
     # Main update loop
     QtWidgets.QApplication.exec_()
@@ -121,7 +128,7 @@ if __name__ == '__main__':
         import ctypes
         if platform.release() != "XP":  # legacy special :-)
             if config.admin.isUserAdmin():
-                AdminUserErrorDialog()
+                admin_user_error_dialog()
 
         if getattr(ctypes.windll.shell32, "SetCurrentProcessExplicitAppUserModelID", None) is not None:
             myappid = 'com.faforever.lobby'
@@ -139,7 +146,7 @@ if __name__ == '__main__':
     if len(trailing_args) == 0:
         # Do the magic
         sys.path += ['.']
-        runFAF()
+        run_faf()
     else:
         # Try to interpret the argument as a replay.
         if trailing_args[0].lower().endswith(".fafreplay") or trailing_args[0].lower().endswith(".scfareplay"):
