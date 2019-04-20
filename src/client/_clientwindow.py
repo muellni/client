@@ -1221,7 +1221,7 @@ class ClientWindow(FormClass, BaseClass):
             self.lobby_connection.send({'command': 'restore_game_session',
                                         'game_id': self.game_session.game_uid})
 
-        # TODO?: self.game_session = fa.GameSession(self, self.connectivity)
+        self.game_session = fa.GameSession(self.id, self.login) #TODO?
         self.game_session.gameFullSignal.connect(self.game_full)
 
     def handle_registration_response(self, message):
