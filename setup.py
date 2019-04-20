@@ -115,7 +115,7 @@ if sys.platform == 'win32':
         # jinja2 dies with 'cannot import compat' without asyncio
         'packages': ['asyncio', 'PyQt5', 'PyQt5.uic', 'idna',
                      'PyQt5.QtWidgets', 'PyQt5.QtNetwork', 'win32com', 'win32com.client',
-                     'pkg_resources._vendor', 'jsonschema'],
+                     'pkg_resources._vendor'],
         'silent': True,
         'excludes': ['numpy', 'scipy', 'matplotlib', 'tcl', 'tkinter'],
 
