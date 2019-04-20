@@ -46,7 +46,7 @@ class GameSession(QObject):
         self.player_login = player_login
 
         # Subscribe to messages targeted at 'game' from the server
-        client.lobby_dispatch.subscribe_to('game', self.handle_message)
+        client.instance.lobby_dispatch.subscribe_to('game', self.handle_message)
 
 
         self._joins, self._connects = [], []
@@ -69,6 +69,7 @@ class GameSession(QObject):
         self.ice_adapter_client = IceAdapterClient(game_session=self)
         self.ice_adapter_client.statusChanged.connect(self.onIceAdapterStarted)
         self.ice_adapter_client.connect_("127.0.0.1", self.ice_adapter_process.rpc_port())
+
         while self._relay_port is 0:
             QCoreApplication.processEvents()
 

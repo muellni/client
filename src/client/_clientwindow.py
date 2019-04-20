@@ -144,7 +144,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
                                                  self.lobby_dispatch.dispatch)
         self.lobby_connection.state_changed.connect(self.on_connection_state_changed)
-        self.lobby_reconnector = ServerReconnecter(self.lobby_connection)
+        self.lobby_reconnecter = ServerReconnecter(self.lobby_connection)
 
         self.players = Playerset()  # Players known to the client
         self.gameset = Gameset(self.players)
@@ -345,7 +345,7 @@ class ClientWindow(FormClass, BaseClass):
 
     def on_connected(self):
         # Enable reconnect in case we used to explicitly stay offline
-        self.lobby_reconnector.enabled = True
+        self.lobby_reconnecter.enabled = True
         self.lobby_connection.send(dict(command="ask_session",
                                         version=config.VERSION,
                                         user_agent="faf-client"))
@@ -709,12 +709,12 @@ class ClientWindow(FormClass, BaseClass):
             i.show()
 
     def reconnect(self):
-        self.lobby_reconnector.enabled = True
+        self.lobby_reconnecter.enabled = True
         self.lobby_connection.do_connect()
 
     def disconnect_(self):
         # Used when the user explicitly demanded to stay offline.
-        self.lobby_reconnector.enabled = False
+        self.lobby_reconnecter.enabled = False
         self.lobby_connection.disconnect()
         self._chatMVC.connection.disconnect()
 
@@ -744,7 +744,7 @@ class ClientWindow(FormClass, BaseClass):
             fa.instance.close()
 
         # Terminate Lobby Server connection
-        self.lobby_reconnector.enabled = False
+        self.lobby_reconnecter.enabled = False
         if self.lobby_connection.socket_connected():
             progress.setLabelText("Closing main connection.")
             self.lobby_connection.disconnect_()
@@ -1214,14 +1214,14 @@ class ClientWindow(FormClass, BaseClass):
         self.update_options()
 
         self.authorized.emit(self.me)
-
+        print("Creating game session")
         if self.game_session is None:
             self.game_session = GameSession(player_id=message["id"], player_login=message["login"])
         elif self.game_session.game_uid != None:
             self.lobby_connection.send({'command': 'restore_game_session',
                                         'game_id': self.game_session.game_uid})
 
-        self.game_session = fa.GameSession(self.id, self.login) #TODO?
+        #self.game_session = fa.GameSession(self.id, self.login) #TODO?
         self.game_session.gameFullSignal.connect(self.game_full)
 
     def handle_registration_response(self, message):
@@ -1263,7 +1263,7 @@ class ClientWindow(FormClass, BaseClass):
         self.lobby_connection.send(msg)
 
     def handle_game_launch(self, message):
-
+        print("game launch")
         self.game_session.startIceAdapter()
 
         logger.info("Handling game_launch via JSON {}".format(message))
@@ -1313,7 +1313,7 @@ class ClientWindow(FormClass, BaseClass):
         info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
 
         self.game_session.game_uid = message['uid']
-
+        print("running ice adapter")
         fa.run(info, self.game_session.relay_port, self.replayServer.serverPort(), arguments, self.game_session.game_uid)
 
     def fill_in_session_info(self, game):
@@ -1403,7 +1403,7 @@ class ClientWindow(FormClass, BaseClass):
     def handle_invalid(self, message):
         # We did something wrong and the server will disconnect, let's not
         # reconnect and potentially cause the same error again and again
-        self.lobby_reconnector.enabled = False
+        self.lobby_reconnecter.enabled = False
         raise Exception(message)
 
     def emit_game_full(self):

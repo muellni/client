@@ -32,7 +32,8 @@ class IceAdapterProcess(object):
                 "--rpc-port", str(self._rpc_server_port),
                 "--gpgnet-port", "0",
                 "--log-level" , "debug",
-                "--log-directory", Settings.get('client/logs/path', type=str)]
+                "--log-directory", Settings.get('client/logs/path', type=str),
+                "--debug-window"]
         if Settings.contains('iceadapter/args'):
             args += Settings.get('iceadapter/args', "", type=str).split(" ")
 

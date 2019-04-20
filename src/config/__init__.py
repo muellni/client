@@ -196,7 +196,7 @@ else:
     environment = 'development'
 
     def is_beta():
-        return True
+        return False
 
 if environment == 'production':
     from .production import defaults
