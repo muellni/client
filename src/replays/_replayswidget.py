@@ -602,7 +602,6 @@ class ReplayVaultWidgetHandler(object):
         self.onlineReplays = {}
         self.selectedReplay = None
         self.apiConnector = ReplaysApiConnector(self._dispatcher)
-        self.apiRequestThread = None
         self.client.lobby_info.replayVault.connect(self.replayVault)
         self.replayDownload = QNetworkAccessManager()
         self.replayDownload.finished.connect(self.finishRequest)
@@ -669,8 +668,7 @@ class ReplayVaultWidgetHandler(object):
         if filters:
             parameters["filter"] = filters
 
-        self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
-        self.apiRequestThread.start()
+        self.apiConnector.requestData(parameters)
 
     def prepareFilters (self, minRating, mapName, playerName, modListIndex, timePeriod = None):
         '''
@@ -717,9 +715,7 @@ class ReplayVaultWidgetHandler(object):
                 self._w.searchInfoLabel.setText(self.searchInfo)
                 self.searching = True
                 parameters = self.defaultSearchParams
-                
-                self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
-                self.apiRequestThread.start()
+                self.apiConnector.requestData(parameters)
 
     def onlineTreeClicked(self, item):
         if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
@@ -793,8 +789,7 @@ class ReplayVaultWidgetHandler(object):
 
             parameters = self.defaultSearchParams
 
-            self.apiRequestThread = threading.Thread(target=self.apiConnector.requestData, kwargs={'args' : parameters})
-            self.apiRequestThread.start()
+            self.apiConnector.requestData(parameters)
             
             self._w.minRating.setValue(0)
             self._w.mapName.setText("")

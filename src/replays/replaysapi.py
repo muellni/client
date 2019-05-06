@@ -1,11 +1,10 @@
 from PyQt5 import QtCore, QtNetwork
 import json
-import time
-import requests
 
 from config import Settings
 import logging
 logger = logging.getLogger(__name__)
+
 
 
 class ReplaysApiConnector(QtCore.QObject):
@@ -14,21 +13,24 @@ class ReplaysApiConnector(QtCore.QObject):
 
         self.dispatch = dispatch
         self.api = Settings.get('api') +'/data/game'
+        self.manager = QtNetwork.QNetworkAccessManager()
+        self.manager.finished.connect(self.onRequestFinished)
 
     def requestData(self, args):
-        try:
-            response = requests.get(self.api, args)
-        except ValueError as e:
-            logger.error("API request failed")    
-            logger.error(e)
-            return
+        query = QtCore.QUrlQuery()
+        for key, value in args.items():
+            query.addQueryItem(key, str(value))
+        url = QtCore.QUrl(self.api)
+        url.setQuery(query)
+        request = QtNetwork.QNetworkRequest(url)
+        self.manager.get(request)
 
-        if(response.ok):
-            self.handleData(response.content)
+    def onRequestFinished(self, reply):
+        if reply.error() != QtNetwork.QNetworkReply.NoError:
+            logger.error("API request error:", reply.error())
         else:
-            logger.debug("API error: " + str(response.status_code))
-        
-    
+            self.handleData(reply.readAll().data().decode('utf-8'))
+
     def handleData(self, data_string):
         preparedData = dict(command = "replay_vault", 
                             action = "search_result",
