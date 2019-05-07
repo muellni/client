@@ -130,6 +130,7 @@ class ReplayItem(QtWidgets.QTreeWidgetItem):
         try:
             self.mapid     = replay["mapVersion"]["id"]
             self.mapname   = replay["mapVersion"]["folderName"]
+            self.previewUrlLarge = message["maps"][self.mapid]["thumbnailUrlLarge"]
         except:
             # coop games
             self.mapname   = "unknown"
