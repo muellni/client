@@ -16,12 +16,13 @@ class ApiBase(QtCore.QObject):
 
         self.handlers = {}
 
-    # query arguments like filter=login==Rhyza
-    def request(self, queryDict, responseHandler):
+    # query arguments like filter=login==Rhyza with queryDict={'filter' : 'login==Rhyza'}
+    def request(self, queryDict, responseHandler, path=''):
         query = QtCore.QUrlQuery()
         for key, value in queryDict.items():
           query.addQueryItem(key, str(value))
         url = QtCore.QUrl(self.url)
+        url.setPath(url.path() + path)
         url.setQuery(query)
         request = QtNetwork.QNetworkRequest(url)
         request.setRawHeader(b'User-Agent', b"FAF Client")

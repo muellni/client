@@ -1,7 +1,3 @@
-import urllib.request
-import urllib.error
-import urllib.parse
-import json
 import copy
 import time
 from PyQt5 import QtWidgets
@@ -9,6 +5,7 @@ from PyQt5 import QtWidgets
 import logging
 logger = logging.getLogger(__name__)
 
+from ..api import ApiBase
 
 class ApiError(Exception):
     def __init__(self, reason):
@@ -18,10 +15,11 @@ class ApiError(Exception):
 
 class AliasViewer:
     def __init__(self):
-        pass
+        self.api = ApiBase('/data/player')
 
     # TODO refactor once async api is implemented
     def _api_request(self, link):
+        self.api.request({''})
         try:
             with urllib.request.urlopen(link) as response:
                 return json.loads(response.read().decode())
@@ -44,10 +42,10 @@ class AliasViewer:
         return int(response['data'][0]['id'])
 
     def names_previously_known(self, user_id):
+        queryDict = {'include': 'names',
+                     'fields[player]': 'login',
+                     'fields[nameRecord]': 'name,changeTime'}
         api_link = 'https://api.faforever.com/data/player/{id_}' \
-                   '?include=names' \
-                   '&fields[player]=login' \
-                   '&fields[nameRecord]=name,changeTime'
         query = api_link.format(id_=user_id)
         response = self._api_request(query)
         if response is None or 'included' not in response:
@@ -70,13 +68,11 @@ class AliasViewer:
         return aliases
 
     def name_used_by_others(self, checked_name):
-        api_link = 'https://api.faforever.com/data/player' \
-                   '?include=names' \
-                   '&filter=(login=={name},names.name=={name})' \
-                   '&fields[player]=login,names' \
-                   '&fields[nameRecord]=name,changeTime'
-        query = api_link.format(name=checked_name)
-        response = self._api_request(query)
+        query = {'include' : 'names',
+                 'filter' : '(login=={name},names.name=={name})'.format(name=checked_name),
+                 'fields[player]' : 'login,names',
+                 'fields[nameRecord]' : 'name,changeTime'}
+        self._api_request(query)
         if response is None or 'data' not in response:
             return []
 
@@ -177,9 +173,10 @@ class AliasWindow:
 
     def view_aliases(self, name, id_=None):
         player_aliases = None
-        other_users = None
+        self._api.name_used_by_others(name, self.on_aliases_response)
+
+    def on_aliases_response(self, other_users):
         try:
-            other_users = self._api.name_used_by_others(name)
             if id_ is None:
                 users_now = [u for u in other_users if u['time'] is None]
                 if len(users_now) > 0:
